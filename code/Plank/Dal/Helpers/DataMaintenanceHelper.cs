@@ -24,9 +24,9 @@ namespace LazyE9.Plank.Dal.Helpers
 			DateTime limitDate = DateTime.Today.AddDays( -(int)config.Value );
 
 			//Delete Idle logs
-			DbHelper.ExecuteNonQuery( "DELETE FROM TasksLog " +
-															 " WHERE TasksLog.TaskId =  " + Tasks.IdleTask.Id +
-															 " AND TasksLog.InsertTime < ?", new string[] { "InsertTime" },
+			DbHelper.ExecuteNonQuery( "DELETE FROM WorkLog " +
+															 " WHERE WorkLog.WorkItemId =  " + WorkItems.IdleWorkItem.Id +
+															 " AND WorkLog.InsertTime < ?", new string[] { "InsertTime" },
 															 new object[] { limitDate } );
 		}
 
@@ -34,7 +34,7 @@ namespace LazyE9.Plank.Dal.Helpers
 		{
 			DbHelper.ExecuteNonQuery( "Delete from ApplicationsLog where ActiveTime is NULL or ActiveTime = 0" );
 			// See bug 1917606
-			DbHelper.ExecuteNonQuery( "Delete from TasksLog where Duration is NULL or Duration = 0" );
+			DbHelper.ExecuteNonQuery( "Delete from WorkLog where Duration is NULL or Duration = 0" );
 		}
 
 		public static void GroupLogs( bool fullCheck )
@@ -43,7 +43,7 @@ namespace LazyE9.Plank.Dal.Helpers
 			DateTime date = DateTime.Today.AddDays( -(int)config.Value );
 			while( true )
 			{
-				object value = DbHelper.ExecuteScalar( "SELECT Max(InsertTime) FROM TasksLog WHERE InsertTime<?",
+				object value = DbHelper.ExecuteScalar( "SELECT Max(InsertTime) FROM WorkLog WHERE InsertTime<?",
 																							new [] { "InsertTime" }, new object[] { date } );
 
 				if( value == DBNull.Value )
@@ -91,14 +91,14 @@ namespace LazyE9.Plank.Dal.Helpers
 						applicationsLog = _MergeApplicationsLists( applicationsLog, deletedApplicationsLog, mergedLog.MergeLog.Id, con, trans );
 
 						command = con.CreateCommand();
-						command.CommandText = "Delete from TasksLog Where Id = " + log.Id;
+						command.CommandText = "Delete from WorkLog Where Id = " + log.Id;
 						command.Connection = con;
 						command.Transaction = trans;
 						command.ExecuteNonQuery();
 					}
 
 					command = con.CreateCommand();
-					command.CommandText = "Update TasksLog Set Duration = " + mergedLog.MergeLog.Duration + " Where Id = " + mergedLog.MergeLog.Id;
+					command.CommandText = "Update WorkLog Set Duration = " + mergedLog.MergeLog.Duration + " Where Id = " + mergedLog.MergeLog.Id;
 					command.Connection = con;
 					command.Transaction = trans;
 					command.ExecuteNonQuery();

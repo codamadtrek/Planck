@@ -5,19 +5,19 @@ using LazyE9.Plank.Model;
 
 namespace LazyE9.Plank.Dal
 {
-	public class TaskChangeEventArgs : EventArgs
+	public class WorkItemChangeEventArgs : EventArgs
 	{
 		#region Constructors
 
-		public TaskChangeEventArgs( Task task, DataRowAction action )
+		public WorkItemChangeEventArgs( WorkItem workItem, DataRowAction action )
 		{
-			this.task = task;
+			this.workItem = workItem;
 			this.action = action;
 		}
 
 		#endregion Constructors
 
-		#region TaskChangeEventArgs Members
+		#region WorkItemChangeEventArgs Members
 
 		public DataRowAction Action
 		{
@@ -27,20 +27,20 @@ namespace LazyE9.Plank.Dal
 			}
 		}
 
-		public Task Task
+		public WorkItem WorkItem
 		{
 			get
 			{
-				return task;
+				return workItem;
 			}
 		}
 
-		#endregion TaskChangeEventArgs Members
+		#endregion WorkItemChangeEventArgs Members
 
 		#region Private Members
 
 		private DataRowAction action;
-		private Task task;
+		private WorkItem workItem;
 
 		#endregion Private Members
 

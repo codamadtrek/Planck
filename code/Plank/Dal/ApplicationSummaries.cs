@@ -20,17 +20,17 @@ namespace LazyE9.Plank.Dal
 		private static ArrayList GetApplicationsRecursiveSummary(int parentTaskId, DateTime ini, DateTime end)
 		{
 			ArrayList arrayHT = DbHelper.ExecuteGetRows(
-				"SELECT TasksLog.TaskId, Sum(ApplicationsLog.ActiveTime) AS TotalActiveTime, ApplicationsLog.Name, ApplicationsLog.ApplicationFullPath " +
-				"FROM TasksLog INNER JOIN ApplicationsLog ON TasksLog.Id = ApplicationsLog.TaskLogId " +
-				"WHERE TasksLog.Id IN (select TasksLog.Id from TasksLog where TasksLog.TaskId=? and TasksLog.InsertTime>=? and TasksLog.InsertTime<=?) " +
-				"GROUP BY TasksLog.TaskId, ApplicationsLog.Name, ApplicationsLog.ApplicationFullPath",
-				new string[] {"TaskId", "InsertTime1", "InsertTime2"}, new object[] {parentTaskId, ini, end});
+				"SELECT WorkLog.WorkItemId, Sum(ApplicationsLog.ActiveTime) AS TotalActiveTime, ApplicationsLog.Name, ApplicationsLog.ApplicationFullPath " +
+				"FROM WorkLog INNER JOIN ApplicationsLog ON WorkLog.Id = ApplicationsLog.WorkLogId " +
+				"WHERE WorkLog.Id IN (select WorkLog.Id from WorkLog where WorkLog.WorkItemId=? and WorkLog.InsertTime>=? and WorkLog.InsertTime<=?) " +
+				"GROUP BY WorkLog.WorkItemId, ApplicationsLog.Name, ApplicationsLog.ApplicationFullPath",
+				new string[] { "WorkItemId", "InsertTime1", "InsertTime2" }, new object[] { parentTaskId, ini, end } );
 
 			ArrayList tempDataset = new ArrayList();
 			foreach (IDictionary dictionary in arrayHT)
 			{
 				ApplicationSummary appSum = new ApplicationSummary();
-				appSum.TaskId = Convert.ToInt32( (long)dictionary["TaskId"] );
+				appSum.TaskId = Convert.ToInt32( (long)dictionary["WorkItemId"] );
 				appSum.TotalActiveTime = (double) dictionary["TotalActiveTime"];
 				appSum.Name = (string) dictionary["Name"];
 				appSum.ApplicationFullPath = (string) dictionary["ApplicationFullPath"];
@@ -38,9 +38,9 @@ namespace LazyE9.Plank.Dal
 			} //foreach
 
 			ArrayList appSumaryList = MergeApplicationSummaryLists(new ArrayList(), tempDataset);
-			Task[] childRows;
-			childRows = Tasks.GetChildTasks(parentTaskId);
-			foreach (Task childRow in childRows)
+			WorkItem[] childRows;
+			childRows = WorkItems.GetChildTasks(parentTaskId);
+			foreach (WorkItem childRow in childRows)
 			{
 				appSumaryList = MergeApplicationSummaryLists(appSumaryList, GetApplicationsRecursiveSummary(childRow.Id, ini, end));
 			} //foreach

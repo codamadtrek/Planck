@@ -93,7 +93,7 @@ namespace LazyE9.Plank.Model
 		}
 
 		/// <summary>
-		/// Application Task log Id
+		/// Application WorkItem log Id
 		/// </summary>
 		public int TaskLogId
 		{

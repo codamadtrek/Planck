@@ -18,7 +18,7 @@ namespace LazyE9.Plank.Model
 		private int id;
 
 		/// <summary>
-		/// Task Id.
+		/// WorkItem Id.
 		/// </summary>
 		private int taskId;
 

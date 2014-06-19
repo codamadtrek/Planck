@@ -1,11 +1,11 @@
 ﻿namespace LazyE9.Plank.UI
 {
 	/// <summary>
-	/// Interaction logic for LoginView.xaml
+	/// Interaction logic for WorkLogView.xaml
 	/// </summary>
-	public partial class LoginView
+	public partial class WorkLogView
 	{
-		public LoginView()
+		public WorkLogView()
 		{
 			InitializeComponent();
 		}

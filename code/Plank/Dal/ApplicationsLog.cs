@@ -84,7 +84,7 @@ namespace LazyE9.Plank.Dal
 
 		/// <summary>
 		/// GetApplicationsLog retrieves each Application log related 
-		/// to a Task selected by its TaskLogId
+		/// to a WorkItem selected by its TaskLogId
 		/// </summary>
 		public static ArrayList GetApplicationsLog(int taskLogId)
 		{
@@ -118,7 +118,7 @@ namespace LazyE9.Plank.Dal
                 throw new ApplicationException("The application log entry doesn't exists.");
             int logId = Convert.ToInt32(result["TaskLogId"]);
             //if (logId == Logs.CurrentLog.Id)
-            //    throw new ApplicationException("Applications log entries from current task can't be deleted.");
+            //    throw new ApplicationException("Applications log entries from current WorkItem can't be deleted.");
 
             for (int i = 0; i < currentApplicationsLog.Count;i++ )
             {
@@ -315,7 +315,7 @@ namespace LazyE9.Plank.Dal
 		} 
 
 		/// <summary>
-		/// Change log Event for Tasks
+		/// Change log Event for WorkItems
 		/// </summary>
 		private static void TasksLog_LogChanged(Logs.LogChangeEventArgs e)
 		{
@@ -368,7 +368,7 @@ namespace LazyE9.Plank.Dal
 
 
 		/// <summary>
-		/// Task log after Stop logging Eveng
+		/// WorkItem log after Stop logging Eveng
 		/// </summary>
 		private static void TasksLog_AfterStopLogging(object sender, EventArgs e)
 		{

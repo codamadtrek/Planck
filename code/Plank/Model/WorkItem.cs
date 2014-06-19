@@ -3,11 +3,11 @@ using System;
 namespace LazyE9.Plank.Model
 {
 	/// <summary>
-	/// Descripción breve de Task.
+	/// Descripción breve de WorkItem.
 	/// </summary>
-	public class Task : IComparable
+	public class WorkItem : IComparable
 	{
-		#region Task Members
+		#region WorkItem Members
 
 		public string Description
 		{
@@ -117,9 +117,9 @@ namespace LazyE9.Plank.Model
 			}
 		}
 
-		public Task Clone()
+		public WorkItem Clone()
 		{
-			var task = new Task
+			var task = new WorkItem
 			{
 				mId = mId,
 				mParentId = mParentId,
@@ -136,10 +136,10 @@ namespace LazyE9.Plank.Model
 
 		public int CompareTo( object obj )
 		{
-			return mDescription.CompareTo( ((Task)obj).mDescription );
+			return mDescription.CompareTo( ((WorkItem)obj).mDescription );
 		}
 
-		#endregion Task Members
+		#endregion WorkItem Members
 
 		#region Private Members
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Timers;
 
@@ -26,7 +27,7 @@ namespace LazyE9.Plank.Dal
 
 		public static void AddIdleTaskLog()
 		{
-			AddLog( Tasks.IdleTask.Id );
+			AddLog( WorkItems.IdleWorkItem.Id );
 		}
 
 		public static Log AddLog( int taskId )
@@ -39,8 +40,8 @@ namespace LazyE9.Plank.Dal
 				InsertTime = DateTime.Now,
 				TaskId = taskId
 			};
-			log.Id = DbHelper.ExecuteInsert( "INSERT INTO TasksLog(Duration, InsertTime, TaskId) VALUES (?, ?, ?)",
-											new[] { "Duration", "InsertTime", "TaskId" },
+			log.Id = DbHelper.ExecuteInsert( "INSERT INTO WorkLog(Duration, InsertTime, WorkItemId) VALUES (?, ?, ?)",
+											new[] { "Duration", "InsertTime", "TaWorkItemIdskId" },
 											new object[] { log.Duration, log.InsertTime, log.TaskId } );
 
 			currentLog = log;
@@ -59,12 +60,11 @@ namespace LazyE9.Plank.Dal
 				var log = (Log)logs[i];
 				UpdateLogTaskId( log.Id, newTaskId );
 			}
-			//DbHelper.ExecuteNonQuery("Update TasksLog Set TaskId = " + newTaskId + " Where TaskId = oldTaskId");
 		}
 
 		public static void DeleteLog( int id )
 		{
-			var idleTaskId = Tasks.IdleTask.Id;
+			var idleTaskId = WorkItems.IdleWorkItem.Id;
 			UpdateLogTaskId( id, idleTaskId );
 		}
 
@@ -74,13 +74,13 @@ namespace LazyE9.Plank.Dal
 		public static void FillMissingTimeUntilNow()
 		{
 			//Check db is not empty
-			var logCount = (long)DbHelper.ExecuteScalar( "Select Count(1) From TasksLog" );
+			var logCount = (long)DbHelper.ExecuteScalar( "Select Count(1) From WorkLog" );
 			if( logCount == 0 )
 				return;
 
-			var lastLogInsert = (DateTime)DbHelper.ExecuteScalar( "Select max(InsertTime) from TasksLog" );
+			var lastLogInsert = (DateTime)DbHelper.ExecuteScalar( "Select max(InsertTime) from WorkLog" );
 
-			var lastLogDuration = (int)DbHelper.ExecuteScalar( "Select Duration from TasksLog Where InsertTime >= ?",
+			var lastLogDuration = (int)DbHelper.ExecuteScalar( "Select Duration from WorkLog Where InsertTime >= ?",
 															   new[] { "Duration" }, new object[] { lastLogInsert } );
 
 			DateTime lastLogFinish = lastLogInsert.AddSeconds( lastLogDuration );
@@ -94,7 +94,7 @@ namespace LazyE9.Plank.Dal
 
 			Configuration configLogDuration = ConfigurationHelper.GetConfiguration( ConfigurationKey.TasksLogDuration );
 
-			var defaultTaskId = Tasks.IdleTask.Id;
+			var defaultTaskId = WorkItems.IdleWorkItem.Id;
 
 			while( lastLogFinish.AddSeconds( 60 ) < DateTime.Now ) //less than 1 minute is ignored
 			{
@@ -102,8 +102,8 @@ namespace LazyE9.Plank.Dal
 									? (int)configLogDuration.Value * 60
 									: (DateTime.Now - lastLogFinish).TotalSeconds);
 
-				DbHelper.ExecuteInsert( "INSERT INTO TasksLog(Duration, InsertTime, TaskId) VALUES (?, ?, ?)",
-									   new[] { "Duration", "InsertTime", "TaskId" },
+				DbHelper.ExecuteInsert( "INSERT INTO WorkLog(Duration, InsertTime, WorkItemId) VALUES (?, ?, ?)",
+										 new[] { "Duration", "InsertTime", "WorkItemId" },
 									   new object[] { duration, lastLogFinish, defaultTaskId } );
 
 				lastLogInsert = lastLogFinish;
@@ -116,38 +116,38 @@ namespace LazyE9.Plank.Dal
 		{
 			if( currentLog != null && currentLog.Id == id )
 				return currentLog;
-			IDictionary dictionary = DbHelper.ExecuteGetFirstRow( "Select TaskId, Duration, InsertTime  from TasksLog where Id = " + id );
+			IDictionary dictionary = DbHelper.ExecuteGetFirstRow( "Select WorkItemId, Duration, InsertTime  from WorkLog where Id = " + id );
 			if( dictionary == null )
 				return null;
 			var log = new Log
 			{
 				Id = id,
-				TaskId = Convert.ToInt32((long)dictionary["TaskId"]),
+				TaskId = Convert.ToInt32( (long)dictionary["WorkItemId"] ),
 				Duration = Convert.ToInt32((long)dictionary["Duration"]),
 				InsertTime = (DateTime)dictionary["InsertTime"]
 			};
 			return log;
 		}
 
-		public static ArrayList GetLogsByDay( DateTime day )
+		public static List<Log> GetLogsByDay( DateTime day )
 		{
 			DateTime date = day.Date;
 			ArrayList arrayList = DbHelper.ExecuteGetRows(
-				"Select Id, TaskId, Duration, InsertTime  from TasksLog where InsertTime >= ? and InsertTime <= ? order by InsertTime",
+				"Select Id, WorkItemId, Duration, InsertTime  from WorkLog where InsertTime >= ? and InsertTime <= ? order by InsertTime",
 				new[] { "InsertTimeFrom", "InsertTimeTo" }, new object[] { date, date.AddDays( 1 ).AddSeconds( -1 ) } );
 
 			if( arrayList == null )
 				return null;
 
-			var list = new ArrayList();
+			var list = new List<Log>();
 			foreach( IDictionary dictionary in arrayList )
 			{
 				var log = new Log
 				{
 					Id = Convert.ToInt32((long)dictionary["Id"]),
-					TaskId = Convert.ToInt32((long)dictionary["TaskId"]),
+					TaskId = Convert.ToInt32( (long)dictionary["WorkItemId"] ),
 					Duration = Convert.ToInt32((long)dictionary["Duration"]),
-					InsertTime = (DateTime)dictionary["InsertTime"]
+					InsertTime = DateTime.Parse((string)dictionary["InsertTime"])
 				};
 
 				list.Add( log );
@@ -158,8 +158,8 @@ namespace LazyE9.Plank.Dal
 		public static ArrayList GetLogsByTask( long taskId )
 		{
 			ArrayList arrayList = DbHelper.ExecuteGetRows(
-				"Select Id, TaskId, Duration, InsertTime  from TasksLog where TaskId = ? order by InsertTime",
-				new[] { "TaskId" }, new object[] { taskId } );
+				"Select Id, WorkItemId, Duration, InsertTime  from WorkLog where TaskId = ? order by InsertTime",
+				new[] { "WorkItemId" }, new object[] { taskId } );
 
 			if( arrayList == null )
 				return null;
@@ -170,7 +170,7 @@ namespace LazyE9.Plank.Dal
 				var log = new Log
 				{
 					Id = Convert.ToInt32((long)dictionary["Id"]),
-					TaskId = Convert.ToInt32((long)dictionary["TaskId"]),
+					TaskId = Convert.ToInt32( (long)dictionary["WorkItemId"] ),
 					Duration = Convert.ToInt32((long)dictionary["Duration"]),
 					InsertTime = (DateTime)dictionary["InsertTime"]
 				};
@@ -190,20 +190,20 @@ namespace LazyE9.Plank.Dal
 			while( queue.Count > 0 )
 			{
 				var curTaskId = (int)queue.Dequeue();
-				Task[] childs = Tasks.GetChildTasks( curTaskId );
-				foreach( Task child in childs )
+				WorkItem[] childs = WorkItems.GetChildTasks( curTaskId );
+				foreach( WorkItem child in childs )
 				{
-					if( child.Id != Tasks.IdleTask.Id )
+					if( child.Id != WorkItems.IdleWorkItem.Id )
 						queue.Enqueue( child.Id );
 				}
-				object retValue = DbHelper.ExecuteScalar( "Select Min(InsertTime) From TasksLog Where TaskId = ?", new[] { "TaskId" },
+				object retValue = DbHelper.ExecuteScalar( "Select Min(InsertTime) From WorkLog Where WorkItemId = ?", new[] { "WorkItemId" },
 					   new object[] { curTaskId } );
 				if( retValue == null || retValue == DBNull.Value )
 					continue;
 
 				var curStartTime = (DateTime)retValue;
 
-				var curEndTime = (DateTime)DbHelper.ExecuteScalar( "Select Max(InsertTime) From TasksLog Where TaskId = ?", new[] { "TaskId" },
+				var curEndTime = (DateTime)DbHelper.ExecuteScalar( "Select Max(InsertTime) From WorkLog Where WorkItemId = ?", new[] { "WorkItemId" },
 			   new object[] { curTaskId } );
 
 				if( curStartTime < range.StartDate )
@@ -241,7 +241,7 @@ namespace LazyE9.Plank.Dal
 			if( currentLog == null )
 				return;
 
-			DbHelper.ExecuteNonQuery( "UPDATE TasksLog SET Duration = ? WHERE Id = " + currentLog.Id,
+			DbHelper.ExecuteNonQuery( "UPDATE WorkLog SET Duration = ? WHERE Id = " + currentLog.Id,
 									 new[] { "Duration" }, new object[] { currentLog.Duration } );
 		}
 
@@ -249,7 +249,7 @@ namespace LazyE9.Plank.Dal
 		{
 			Log log = FindById( logId );
 			log.TaskId = taskId;
-			DbHelper.ExecuteNonQuery( "UPDATE TasksLog SET TaskId = " + taskId + " WHERE Id = " + logId );
+			DbHelper.ExecuteNonQuery( "UPDATE WorkLog SET WorkItemId = " + taskId + " WHERE Id = " + logId );
 
 			if( currentLog != null && currentLog.Id == logId )
 				currentLog.TaskId = taskId;

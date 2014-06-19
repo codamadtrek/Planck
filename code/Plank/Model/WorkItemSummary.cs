@@ -1,11 +1,11 @@
 namespace LazyE9.Plank.Model
 {
 	/// <summary>
-	/// TaskSummary
+	/// WorkItemSummary
 	/// </summary>
-	public class TaskSummary
+	public class WorkItemSummary
 	{
-		#region TaskSummary Members
+		#region WorkItemSummary Members
 
 		/// <summary>
 		/// Description Accessors
@@ -67,7 +67,7 @@ namespace LazyE9.Plank.Model
 			set;
 		}
 
-		#endregion TaskSummary Members
+		#endregion WorkItemSummary Members
 
 	} //end of class
 } //end of namespace

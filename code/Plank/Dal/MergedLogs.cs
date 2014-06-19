@@ -30,8 +30,8 @@ namespace LazyE9.Plank.Dal
 		public static MergedLogs GetMergedLogsByDay(DateTime day)
 		{
 			DateTime date = day.Date;
-			ArrayList logs = Logs.GetLogsByDay(date);
-			MergedLogs mergedList = new MergedLogs();
+			var logs = Logs.GetLogsByDay(date);
+			var mergedList = new MergedLogs();
 
 			//ArrayList mergedList = new ArrayList();
 			//ArrayList needsDelete = new ArrayList();
@@ -57,7 +57,6 @@ namespace LazyE9.Plank.Dal
 					}
 				}
 				mergedList.Add(new MergedLog(log));
-				;
 				m++;
 			}
 			return mergedList;

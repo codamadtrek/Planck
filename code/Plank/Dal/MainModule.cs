@@ -12,7 +12,7 @@ namespace LazyE9.Plank.Dal
 			DbHelper.Initialize(userName);
 			DBUpdaterHelper.UpdateDataBase();
 			DbHelper.CompactDB();
-			Tasks.Initialize();
+			WorkItems.Initialize();
 
 			DataMaintenanceHelper.DeleteIdleEntries();
 			DataMaintenanceHelper.DeleteZeroOrNullActiveTimeEntries();

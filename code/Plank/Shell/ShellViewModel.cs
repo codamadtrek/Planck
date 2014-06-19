@@ -9,7 +9,7 @@ namespace LazyE9.Plank.Shell
 		{
 			base.OnInitialize( payload );
 
-			NavigationManager.Push( new TaskLogViewModel(), new LoginView() );
+			NavigationManager.Push( new WorkLogViewModel(), new WorkLogView() );
 		}
 	}
 }

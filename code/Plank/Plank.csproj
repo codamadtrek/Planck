@@ -31,7 +31,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -98,24 +98,25 @@
     <Compile Include="Dal\Logs.cs" />
     <Compile Include="Dal\MainModule.cs" />
     <Compile Include="Dal\MergedLogs.cs" />
-    <Compile Include="Dal\TaskChangedEventArgs.cs" />
-    <Compile Include="Dal\Tasks.cs" />
-    <Compile Include="Dal\TasksSummaries.cs" />
+    <Compile Include="Dal\WorkItemChangeEventArgs.cs" />
+    <Compile Include="Dal\WorkItems.cs" />
+    <Compile Include="Dal\WorkItemSummaries.cs" />
     <Compile Include="Dal\Helpers\UpdaterHelper.cs" />
     <Compile Include="Model\ApplicationLog.cs" />
     <Compile Include="Model\ApplicationSummary.cs" />
     <Compile Include="Model\DateRange.cs" />
     <Compile Include="Model\Log.cs" />
     <Compile Include="Model\MergedLog.cs" />
-    <Compile Include="Model\Task.cs" />
-    <Compile Include="Model\TaskSummary.cs" />
+    <Compile Include="Model\WorkItem.cs" />
+    <Compile Include="Model\WorkItemSummary.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Shell\ShellNavigationManager.cs" />
     <Compile Include="Shell\ShellViewModel.cs" />
-    <Compile Include="UI\TaskLogView.xaml.cs">
-      <DependentUpon>TaskLogView.xaml</DependentUpon>
+    <Compile Include="UI\WorkLogItemViewModel.cs" />
+    <Compile Include="UI\WorkLogView.xaml.cs">
+      <DependentUpon>WorkLogView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\TaskLogViewModel.cs" />
+    <Compile Include="UI\WorkLogViewModel.cs" />
     <Page Include="Shell\ShellView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -188,7 +189,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\TaskLogView.xaml">
+    <Page Include="UI\WorkLogView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -247,6 +248,11 @@
   <ItemGroup>
     <Folder Include="Dal\Database\" />
     <Folder Include="Processor\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="x64\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

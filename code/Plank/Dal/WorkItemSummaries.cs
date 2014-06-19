@@ -9,9 +9,9 @@ namespace LazyE9.Plank.Dal
 	/// <summary>
 	/// Summary description for Summary class.
 	/// </summary>
-	public sealed class TasksSummaries
+	public sealed class WorkItemSummaries
 	{
-		private TasksSummaries()
+		private WorkItemSummaries()
 		{
 		} //Summary
 
@@ -20,7 +20,7 @@ namespace LazyE9.Plank.Dal
         public static int GetExecutedTime(int taskId)
         {
             Logs.UpdateCurrentLogDuration();
-            object workedTime = DbHelper.ExecuteScalar("Select Sum(Duration) from TasksLog where TaskId = ?",
+						object workedTime = DbHelper.ExecuteScalar( "Select Sum(Duration) from WorkLog where WorkItemId = ?",
                                          new string[] { "IdleTaskId" },
                                          new object[] { taskId });
             if (workedTime == DBNull.Value)
@@ -29,7 +29,7 @@ namespace LazyE9.Plank.Dal
                 return Convert.ToInt32(workedTime);
         }
 
-		public static ArrayList GetTaskSummary(Task parentTask, DateTime initialDate, DateTime finalDate)
+		public static ArrayList GetTaskSummary(WorkItem parentWorkItem, DateTime initialDate, DateTime finalDate)
 		{
 			Logs.UpdateCurrentLogDuration();
 			ArrayList summaryList;
@@ -39,11 +39,11 @@ namespace LazyE9.Plank.Dal
 
 			while (summaryList.Count > 0)
 			{
-				TaskSummary currentSum = (TaskSummary) summaryList[0];
-				Task currentTask = Tasks.FindById(currentSum.TaskId);
-				currentSum.Description = currentTask.Description;
-				currentSum.IsActive = currentTask.IsActive;
-				currentSum.IconId = currentTask.IconId;
+				WorkItemSummary currentSum = (WorkItemSummary) summaryList[0];
+				WorkItem currentWorkItem = WorkItems.FindById(currentSum.TaskId);
+				currentSum.Description = currentWorkItem.Description;
+				currentSum.IsActive = currentWorkItem.IsActive;
+				currentSum.IconId = currentWorkItem.IconId;
 			    
 				if (!currentSum.IsActive)
 				{
@@ -51,23 +51,23 @@ namespace LazyE9.Plank.Dal
 					currentSum.TotalActiveTime = 0;
 				} //if
 
-                currentSum.TotalEstimation = currentTask.Estimation;
+                currentSum.TotalEstimation = currentWorkItem.Estimation;
                 if (currentSum.TotalEstimation != 0)
                     currentSum.TotalTimeOverEstimation = currentSum.TotalActiveTime + currentSum.TotalInactiveTime;
                 
-                if (currentTask.Id != Tasks.IdleTask.Id) //ignore idle time
+                if (currentWorkItem.Id != WorkItems.IdleWorkItem.Id) //ignore idle time
 				{
-					if (currentTask.Id != parentTask.Id)
+					if (currentWorkItem.Id != parentWorkItem.Id)
 					{
-						if (currentTask.ParentId ==-1)
+						if (currentWorkItem.ParentId ==-1)
 						{
 							summaryList.Remove(currentSum);
 							continue;
 						} //if
 
-						if (currentTask.ParentId == parentTask.Id)
+						if (currentWorkItem.ParentId == parentWorkItem.Id)
 						{
-							TaskSummary retSum = FindTaskSummaryByTaskId(returnList, currentSum.TaskId);
+							WorkItemSummary retSum = FindTaskSummaryByTaskId(returnList, currentSum.TaskId);
 							if (retSum == null)
 							{
 								returnList.Add(currentSum);
@@ -82,16 +82,16 @@ namespace LazyE9.Plank.Dal
 						}
 						else
 						{
-						    TaskSummary currentSumParent;
+						    WorkItemSummary currentSumParent;
                             //First look at the return list
-                            currentSumParent = FindTaskSummaryByTaskId(returnList, currentTask.ParentId);
+                            currentSumParent = FindTaskSummaryByTaskId(returnList, currentWorkItem.ParentId);
                             if (currentSumParent==null)//If not found look at the summaryList
-							    currentSumParent = FindTaskSummaryByTaskId(summaryList, currentTask.ParentId);
+							    currentSumParent = FindTaskSummaryByTaskId(summaryList, currentWorkItem.ParentId);
 						    
 							if (currentSumParent == null) //If parent not in the summary list
 							{
 								currentSumParent = currentSum;
-                                currentSumParent.TaskId = currentTask.ParentId; //just swith to parent task
+                                currentSumParent.TaskId = currentWorkItem.ParentId; //just swith to parent WorkItem
 								continue; //continue without remove the current sum from list
 							}
                             else //else acum totals
@@ -121,9 +121,9 @@ namespace LazyE9.Plank.Dal
 			int workedDays = 0;
 			while(curDate<=finalDate.Date)
 			{
-				int count = Convert.ToInt32(DbHelper.ExecuteScalar("Select count(Id) from TasksLog where TaskId <> ? and InsertTime>= ? and InsertTime<?",
+				int count = Convert.ToInt32( DbHelper.ExecuteScalar( "Select count(Id) from WorkLog where WorkItemId <> ? and InsertTime>= ? and InsertTime<?",
 				                         new string[] {"IdleTaskId", "InitialTime", "FinalTime"},
-				                         new object[] {Tasks.IdleTask.Id, curDate, curDate.AddDays(1)}));
+				                         new object[] {WorkItems.IdleWorkItem.Id, curDate, curDate.AddDays(1)}));
 				if(count>0)
 				{
 					workedDays++;
@@ -138,9 +138,9 @@ namespace LazyE9.Plank.Dal
             Logs.UpdateCurrentLogDuration();
             initialDate = initialDate.Date;
             finalDate = finalDate.Date.AddDays(1);
-            object workedTime = DbHelper.ExecuteScalar("Select Sum(Duration) from TasksLog where TaskId <> ? and InsertTime>= ? and InsertTime<?",
+						object workedTime = DbHelper.ExecuteScalar( "Select Sum(Duration) from WorkLog where WorkItemId <> ? and InsertTime>= ? and InsertTime<?",
                                          new string[] { "IdleTaskId", "InitialTime", "FinalTime" },
-                                         new object[] { Tasks.IdleTask.Id, initialDate, finalDate});
+                                         new object[] { WorkItems.IdleWorkItem.Id, initialDate, finalDate});
             if (workedTime == DBNull.Value)
                 return 0;
             else 
@@ -151,9 +151,9 @@ namespace LazyE9.Plank.Dal
         {
             initialDate = initialDate.Date;
             finalDate = finalDate.Date.AddDays(1);
-            object workedTime = DbHelper.ExecuteScalar("Select Sum(Duration) from TasksLog Inner Join Tasks On TasksLog.TaskId = Tasks.Id Where Tasks.IsActive <> 0 and TaskId <> ? and InsertTime>= ? and InsertTime<?",
+						object workedTime = DbHelper.ExecuteScalar( "Select Sum(Duration) from WorkLog Inner Join WorkItem On WorkLog.WorkItemId = WorkItem.Id Where WorkItem.IsActive <> 0 and WorkItemId <> ? and InsertTime>= ? and InsertTime<?",
                                          new string[] { "IdleTaskId", "InitialTime", "FinalTime" },
-                                         new object[] { Tasks.IdleTask.Id, initialDate, finalDate });
+                                         new object[] { WorkItems.IdleWorkItem.Id, initialDate, finalDate });
             if (workedTime == DBNull.Value)
                 return 0;
             else
@@ -170,17 +170,17 @@ namespace LazyE9.Plank.Dal
 		{
 			ArrayList summaryList = new ArrayList();
 			ArrayList list = DbHelper.ExecuteGetRows(
-				"SELECT TasksLog.TaskId, Sum( TasksLog.Duration ) AS TotalTime FROM TasksLog " +
-				"WHERE ( ( (TasksLog.InsertTime)>=? And (TasksLog.InsertTime)<=? ) )" +
-				"GROUP BY TasksLog.TaskId;",
+				"SELECT WorkLog.WorkItemId, Sum( WorkLog.Duration ) AS TotalTime FROM WorkLog " +
+				"WHERE ( ( (WorkLog.InsertTime)>=? And (WorkLog.InsertTime)<=? ) )" +
+				"GROUP BY WorkLog.WorkItemId;",
 				new string[] {"InsertTimeFrom", "InsertTimeTo"},
 				new object[] {initialDate, finalDate});
 
 			foreach (IDictionary dictionary in list)
 			{
-				var taskSum = new TaskSummary
+				var taskSum = new WorkItemSummary
 				{
-					TaskId = Convert.ToInt32( (long)dictionary["TaskId"] ),
+					TaskId = Convert.ToInt32( (long)dictionary["WorkItemId"] ),
 					TotalActiveTime = (double)dictionary["TotalTime"]
 				};
 				summaryList.Add(taskSum);
@@ -188,9 +188,9 @@ namespace LazyE9.Plank.Dal
 			return summaryList;
 		} //ExecuteTaskSummary
 
-		private static TaskSummary FindTaskSummaryByTaskId(ArrayList taskSummaryList, int taskId)
+		private static WorkItemSummary FindTaskSummaryByTaskId(ArrayList taskSummaryList, int taskId)
 		{
-			foreach (TaskSummary taskSummary in taskSummaryList)
+			foreach (WorkItemSummary taskSummary in taskSummaryList)
 			{
 				if (taskSummary.TaskId == taskId)
 					return taskSummary;

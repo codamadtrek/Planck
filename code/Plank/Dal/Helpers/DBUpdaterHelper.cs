@@ -90,9 +90,9 @@ namespace LazyE9.Plank.Dal.Helpers
 			{
 				try
 				{
-					DbHelper.AddColumn( "Tasks", "Hidden", "Bit" );
-					DbHelper.AddColumn( "Tasks", "Priority", "Integer" );
-					DbHelper.AddColumn( "Tasks", "Notes", "VarChar(255)" );
+					DbHelper.AddColumn( "WorkItem", "Hidden", "Bit" );
+					DbHelper.AddColumn( "WorkItem", "Priority", "Integer" );
+					DbHelper.AddColumn( "WorkItem", "Notes", "VarChar(255)" );
 					ConfigurationHelper.SaveConfiguration( new Configuration( ConfigurationKey.DataBaseVersion, "1.0.0" ) );
 					return true;
 				}
@@ -111,7 +111,7 @@ namespace LazyE9.Plank.Dal.Helpers
 			{
 				try
 				{
-					DbHelper.AddIndex( "TasksLog", "InsertTime" );
+					DbHelper.AddIndex( "WorkLog", "InsertTime" );
 					ConfigurationHelper.SaveConfiguration( new Configuration( ConfigurationKey.DataBaseVersion, "1.0.1" ) );
 					return true;
 				}
@@ -252,17 +252,17 @@ namespace LazyE9.Plank.Dal.Helpers
 			{
 				try
 				{
-					DbHelper.AddColumn( "Tasks", "IsActive", "Bit" );
-					DbHelper.AddColumn( "Tasks", "IconId", "Integer" );
-					DbHelper.ExecuteNonQuery( "Update Tasks Set IsActive = 1, IconId = " + 1 );
+					DbHelper.AddColumn( "WorkItem", "IsActive", "Bit" );
+					DbHelper.AddColumn( "WorkItem", "IconId", "Integer" );
+					DbHelper.ExecuteNonQuery( "Update WorkItem Set IsActive = 1, IconId = " + 1 );
 					DbHelper.ExecuteNonQuery(
-						"UPDATE Tasks INNER JOIN DefaultTasks ON Tasks.DefaultTaskId = DefaultTasks.Id SET Tasks.IsActive = DefaultTasks.IsActive, Tasks.IconId = DefaultTasks.Icon, Tasks.Description = DefaultTasks.Description" );
+						"UPDATE WorkItem INNER JOIN DefaultTasks ON WorkItems.DefaultTaskId = DefaultTasks.Id SET WorkItem.IsActive = DefaultTasks.IsActive, WorkItem.IconId = DefaultTasks.Icon, WorkItem.Description = DefaultTasks.Description" );
 					DbHelper.DeleteTable( "DefaultTasks" );
-					DbHelper.DeleteConstraint( "Tasks", "IsDefaultTask" );
-					DbHelper.DeleteConstraint( "Tasks", "DefaultTaskId" );
-					DbHelper.DeleteColumn( "Tasks", "IsDefaultTask" );
-					DbHelper.DeleteColumn( "Tasks", "DefaultTaskId" );
-					DbHelper.ExecuteNonQuery( "Delete from Tasks where Description = 'Idle'" );
+					DbHelper.DeleteConstraint( "WorkItem", "IsDefaultTask" );
+					DbHelper.DeleteConstraint( "WorkItem", "DefaultTaskId" );
+					DbHelper.DeleteColumn( "WorkItem", "IsDefaultTask" );
+					DbHelper.DeleteColumn( "WorkItem", "DefaultTaskId" );
+					DbHelper.ExecuteNonQuery( "Delete from WorkItem where Description = 'Idle'" );
 					ConfigurationHelper.SaveConfiguration( new Configuration( ConfigurationKey.DataBaseVersion, "0.9.5" ) );
 					return true;
 				}
@@ -300,10 +300,10 @@ namespace LazyE9.Plank.Dal.Helpers
 			{
 				try
 				{
-					DbHelper.DeleteColumn( "Tasks", "StartDate" );
-					DbHelper.DeleteColumn( "Tasks", "StopDate" );
-					DbHelper.DeleteColumn( "Tasks", "IsFinished" );
-					DbHelper.DeleteColumn( "Tasks", "TotalTime" );
+					DbHelper.DeleteColumn( "WorkItem", "StartDate" );
+					DbHelper.DeleteColumn( "WorkItem", "StopDate" );
+					DbHelper.DeleteColumn( "WorkItem", "IsFinished" );
+					DbHelper.DeleteColumn( "WorkItem", "TotalTime" );
 					DbHelper.DeleteColumn( "ApplicationsLog", "ProcessId" );
 					DbHelper.DeleteColumn( "ApplicationsLog", "Caption" );
 					ConfigurationHelper.SaveConfiguration( new Configuration( ConfigurationKey.DataBaseVersion, "0.9.7" ) );
@@ -361,7 +361,7 @@ namespace LazyE9.Plank.Dal.Helpers
 			{
 				try
 				{
-					DbHelper.AddColumn( "Tasks", "Estimation", "Integer" );
+					DbHelper.AddColumn( "WorkItem", "Estimation", "Integer" );
 					ConfigurationHelper.SaveConfiguration( new Configuration( ConfigurationKey.DataBaseVersion, "0.9.10" ) );
 					return true;
 				}

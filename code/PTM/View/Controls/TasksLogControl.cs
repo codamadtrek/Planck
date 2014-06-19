@@ -662,7 +662,6 @@ namespace PTM.View.Controls
 		{
 			mNotifyTimer.Stop();
 			mNotifyTimer.Interval = 1000 * 60 * defaultMins;
-			//notifyTimer.Interval = 1000 * 20;
 			mNotifyTimer.Start();
 		}
 
@@ -687,7 +686,6 @@ namespace PTM.View.Controls
 			}
 
 			item.SubItems[mDurationTaskHeader.Index].Text = ViewHelper.Int32ToTimeString( log.Duration );
-			//item.SubItems[StartTimeHeader.Index].Text = log.InsertTime.ToShortTimeString();
 			var cultureInfo = (CultureInfo)CultureInfo.CurrentCulture.Clone();
 			cultureInfo.DateTimeFormat.ShortTimePattern = "hh:mm tt";
 			cultureInfo.DateTimeFormat.AMDesignator = "a.m.";

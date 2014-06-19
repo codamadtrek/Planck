@@ -145,8 +145,8 @@ namespace PTM.Test.Framework
 
 		private void InsertLog(int taskId, DateTime insertTime, int duration)
 		{
-			DbHelper.ExecuteNonQuery("INSERT INTO TasksLog (TaskId, Duration, InsertTime) values (?, ?, ?)",
-				new string[] {"TaskId", "Duration", "InsertTime"},
+			DbHelper.ExecuteNonQuery( "INSERT INTO WorkLog (WorkItemId, Duration, InsertTime) values (?, ?, ?)",
+				new string[] { "WorkItemId", "Duration", "InsertTime" },
 				new object[] {taskId, duration, insertTime});
 		}
 
