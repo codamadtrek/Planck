@@ -1,0 +1,22 @@
+﻿<Application x:Class="LazyE9.Plank.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="UI\Resources\Converters.xaml"/>
+                <ResourceDictionary Source="Themes\ControlResources\ComboBox.xaml" />
+                <ResourceDictionary Source="Themes\ControlResources\ComboBoxItem.xaml" />
+                <ResourceDictionary Source="Themes\ControlResources\TextBox.xaml" />
+                <ResourceDictionary Source="Themes\ControlResources\ScrollViewer.xaml" />
+                <ResourceDictionary Source="Themes\ControlResources\TextBlock.xaml" />
+                <ResourceDictionary Source="Themes\ControlResources\Button.xaml" />
+                <ResourceDictionary Source="Themes\ControlResources\ProgressBar.xaml" />
+                <ResourceDictionary Source="Themes\ControlResources\PasswordBox.xaml" />
+                <ResourceDictionary Source="Themes\ControlResources\ListBoxItem.xaml" />
+                <ResourceDictionary Source="Themes\ControlResources\TabControl.xaml" />
+                <ResourceDictionary Source="Themes\ControlResources\TabItem.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

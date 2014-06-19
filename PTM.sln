@@ -1,5 +1,5 @@
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2A3C5F4F-65FE-4C2A-9520-0E0C69C3940A}"
 	ProjectSection(SolutionItems) = preProject
 		info.xml = info.xml
@@ -17,6 +17,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PTM", "code\PTM\PTM.csproj", "{67C6D233-B9D3-4C17-AFA1-1AC780847B35}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PTM.Addin.Charts", "code\PTM.Addin.Charts\PTM.Addin.Charts.csproj", "{5A5FA555-FCFB-448E-9859-F8FCD0E6D8A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plank", "code\Plank\Plank.csproj", "{CD82EAE6-1BBC-4C03-93A0-ED814949FD10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +42,10 @@ Global
 		{5A5FA555-FCFB-448E-9859-F8FCD0E6D8A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A5FA555-FCFB-448E-9859-F8FCD0E6D8A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A5FA555-FCFB-448E-9859-F8FCD0E6D8A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD82EAE6-1BBC-4C03-93A0-ED814949FD10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD82EAE6-1BBC-4C03-93A0-ED814949FD10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD82EAE6-1BBC-4C03-93A0-ED814949FD10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD82EAE6-1BBC-4C03-93A0-ED814949FD10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
