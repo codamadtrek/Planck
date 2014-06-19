@@ -92,18 +92,18 @@ namespace PTM.Framework
 				DbHelper.ExecuteGetRows(
 				"SELECT Id, Name, Caption, ApplicationFullPath, ActiveTime FROM ApplicationsLog WHERE TaskLogId = " +
 				taskLogId);
-			ArrayList results = new ArrayList();
+			var results = new ArrayList();
 			foreach (IDictionary dictionary in resultsHT)
 			{
-				ApplicationLog applicationLog = new ApplicationLog();
-				applicationLog.Id = (int) dictionary["Id"];
+				var applicationLog = new ApplicationLog();
+				applicationLog.Id = Convert.ToInt32((long)dictionary["Id"]);
 				applicationLog.Name = (string) dictionary["Name"];
                 if (dictionary["Caption"]==DBNull.Value)
                     applicationLog.Caption = String.Empty;
                 else
                     applicationLog.Caption = (string)dictionary["Caption"];
 				applicationLog.ApplicationFullPath = (string) dictionary["ApplicationFullPath"];
-				applicationLog.ActiveTime = (int) dictionary["ActiveTime"];
+				applicationLog.ActiveTime = Convert.ToInt32( (long)dictionary["ActiveTime"] );
 				applicationLog.TaskLogId = taskLogId;
 				results.Add(applicationLog);
 			} //foreach
@@ -122,7 +122,7 @@ namespace PTM.Framework
 
             for (int i = 0; i < currentApplicationsLog.Count;i++ )
             {
-                ApplicationLog applicationLog = (ApplicationLog) currentApplicationsLog[i];
+                var applicationLog = (ApplicationLog) currentApplicationsLog[i];
                 if(applicationLog.Id == applicationLogId)
                 {
                     currentApplicationsLog.RemoveAt(i);
@@ -134,7 +134,7 @@ namespace PTM.Framework
 
             if (ApplicationsLogChanged != null)
             {
-                ApplicationLog alog = new ApplicationLog();
+                var alog = new ApplicationLog();
                 alog.Id = applicationLogId;
                 alog.TaskLogId = logId;
                 ApplicationsLogChanged(new ApplicationLogChangeEventArgs(alog, DataRowAction.Delete));

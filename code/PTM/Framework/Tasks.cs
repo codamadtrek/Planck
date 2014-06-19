@@ -131,7 +131,7 @@ namespace PTM.Framework
 			return null;
 		}
 
-		public static Task[] GetChildTasks( int taskId )
+		public static Task[] GetChildTasks( long taskId )
 		{
 			Task task;
 			task = _InternalFindById( taskId );
@@ -183,7 +183,7 @@ namespace PTM.Framework
 			Logs.LogChanged += new Logs.LogChangeEventHandler( _TasksLog_LogChanged );
 		}
 
-		public static int IsParent( int parentTaskId, int childTaskId )
+		public static int IsParent( long parentTaskId, long childTaskId )
 		{
 			Task parent;
 			parent = _InternalFindById( parentTaskId );
@@ -200,7 +200,7 @@ namespace PTM.Framework
 			if( child.ParentId == -1 )
 				return -1;
 
-			int parentId = child.ParentId;
+			long parentId = child.ParentId;
 
 			int generation = 1;
 
@@ -311,7 +311,7 @@ namespace PTM.Framework
 			rootTask = task;
 		}
 
-		private static void _DeleteOnCascade( int taskId )
+		private static void _DeleteOnCascade( long taskId )
 		{
 			while( true )
 			{
@@ -348,7 +348,7 @@ namespace PTM.Framework
 				new object[] { task.Description, task.IconId, task.IsActive, task.ParentId, task.Hidden, task.Priority, task.Notes } );
 		}
 
-		private static Task _InternalFindById( int taskId )
+		private static Task _InternalFindById( long taskId )
 		{
 			for( int i = 0; i < tasks.Count; i++ )
 			{
@@ -359,7 +359,7 @@ namespace PTM.Framework
 			return null;
 		}
 
-		private static Task _InternalFindByParentIdAndDescription( int parentId, string description )
+		private static Task _InternalFindByParentIdAndDescription( long parentId, string description )
 		{
 			for( int i = 0; i < tasks.Count; i++ )
 			{
@@ -376,18 +376,18 @@ namespace PTM.Framework
 			foreach( ListDictionary row in rows )
 			{
 				Task task = new Task();
-				task.Id = (int)row["Id"];
+				task.Id = Convert.ToInt32( (long)row["Id"] );
 				task.Description = (string)row["Description"];
 				if( row["ParentId"] == DBNull.Value )
 					task.ParentId = -1;
 				else
-					task.ParentId = (int)row["ParentId"];
-				task.IconId = (int)row["IconId"];
+					task.ParentId = Convert.ToInt32( (long)row["ParentId"] );
+				task.IconId = Convert.ToInt32( (long)row["IconId"] );
 				task.IsActive = (bool)row["IsActive"];
 				if( row["Estimation"] == DBNull.Value )
 					task.Estimation = 0;
 				else
-					task.Estimation = (int)row["Estimation"];
+					task.Estimation = Convert.ToInt32( (long)row["Estimation"] );
 
 				if( row["Hidden"] == DBNull.Value )
 					task.Hidden = false;
@@ -397,7 +397,7 @@ namespace PTM.Framework
 				if( row["Priority"] == DBNull.Value )
 					task.Priority = 0;
 				else
-					task.Priority = (int)row["Priority"];
+					task.Priority = Convert.ToInt32( (long)row["Priority"] );
 
 				if( row["Notes"] == DBNull.Value )
 					task.Notes = String.Empty;

@@ -29,7 +29,7 @@ namespace PTM.Framework
 			foreach (IDictionary dictionary in arrayHT)
 			{
 				ApplicationSummary appSum = new ApplicationSummary();
-				appSum.TaskId = (int) dictionary["TaskId"];
+				appSum.TaskId = Convert.ToInt32( (long)dictionary["TaskId"] );
 				appSum.TotalActiveTime = (double) dictionary["TotalActiveTime"];
 				appSum.Name = (string) dictionary["Name"];
 				appSum.ApplicationFullPath = (string) dictionary["ApplicationFullPath"];

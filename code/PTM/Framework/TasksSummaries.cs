@@ -177,9 +177,11 @@ namespace PTM.Framework
 
 			foreach (IDictionary dictionary in list)
 			{
-				TaskSummary taskSum = new TaskSummary();
-				taskSum.TaskId = (int) dictionary["TaskId"];
-				taskSum.TotalActiveTime = (double) dictionary["TotalTime"];
+				var taskSum = new TaskSummary
+				{
+					TaskId = Convert.ToInt32( (long)dictionary["TaskId"] ),
+					TotalActiveTime = (double)dictionary["TotalTime"]
+				};
 				summaryList.Add(taskSum);
 			} //foreach
 			return summaryList;

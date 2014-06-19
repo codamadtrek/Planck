@@ -1,5 +1,5 @@
 using System;
-using System.Data.OleDb;
+using System.Data.Common;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
@@ -87,7 +87,7 @@ namespace PTM.Framework.Helpers
                     ConfigurationHelper.SaveConfiguration(new Configuration(ConfigurationKey.DataBaseVersion, "1.0.2"));
                     return true;
                 }
-                catch (OleDbException ex)
+                catch (DbException ex)
                 {
                     Logger.WriteException(ex);
                     return false;
@@ -106,7 +106,7 @@ namespace PTM.Framework.Helpers
                     ConfigurationHelper.SaveConfiguration(new Configuration(ConfigurationKey.DataBaseVersion, "1.0.1"));
                     return true;
                 }
-                catch (OleDbException ex)
+                catch (DbException ex)
                 {
                     Logger.WriteException(ex);
                     return false;
@@ -127,7 +127,7 @@ namespace PTM.Framework.Helpers
                     ConfigurationHelper.SaveConfiguration(new Configuration(ConfigurationKey.DataBaseVersion, "1.0.0"));
                     return true;
                 }
-                catch (OleDbException ex)
+                catch (DbException ex)
                 {
                     Logger.WriteException(ex);
                     return false;
@@ -146,7 +146,7 @@ namespace PTM.Framework.Helpers
                     ConfigurationHelper.SaveConfiguration(new Configuration(ConfigurationKey.DataBaseVersion, "0.9.10"));
                     return true;
                 }
-                catch (OleDbException ex)
+                catch (DbException ex)
                 {
                     Logger.WriteException(ex);
                     return false;
@@ -164,7 +164,7 @@ namespace PTM.Framework.Helpers
                     ConfigurationHelper.SaveConfiguration(new Configuration(ConfigurationKey.DataBaseVersion, "0.9.9"));
                     return true;
                 }
-                catch (OleDbException ex)
+                catch (DbException ex)
                 {
                     Logger.WriteException(ex);
                     return false;
@@ -183,7 +183,7 @@ namespace PTM.Framework.Helpers
                     ConfigurationHelper.SaveConfiguration(new Configuration(ConfigurationKey.DataBaseVersion, "0.9.8"));
                     return true;
                 }
-                catch (OleDbException ex)
+                catch (DbException ex)
                 {
                     Logger.WriteException(ex);
                     return false;
@@ -207,7 +207,7 @@ namespace PTM.Framework.Helpers
 					ConfigurationHelper.SaveConfiguration(new Configuration(ConfigurationKey.DataBaseVersion, "0.9.7"));
 					return true;
 				}
-				catch (OleDbException ex)
+				catch (DbException ex)
 				{
                     Logger.WriteException(ex);
 					return false;
@@ -226,7 +226,7 @@ namespace PTM.Framework.Helpers
 					ConfigurationHelper.SaveConfiguration(new Configuration(ConfigurationKey.DataBaseVersion, "0.9.6"));
 					return true;
 				}
-				catch (OleDbException ex)
+				catch (DbException ex)
 				{
                     Logger.WriteException(ex);
 					return false;
@@ -260,7 +260,7 @@ namespace PTM.Framework.Helpers
 					ConfigurationHelper.SaveConfiguration(new Configuration(ConfigurationKey.DataBaseVersion, "0.9.5"));
 					return true;
 				}
-				catch (OleDbException ex)
+				catch (DbException ex)
 				{
                     Logger.WriteException(ex);
 					return false;
@@ -279,7 +279,7 @@ namespace PTM.Framework.Helpers
 					ConfigurationHelper.SaveConfiguration(new Configuration(ConfigurationKey.DataBaseVersion, "0.9.4"));
 					return true;
 				}
-				catch (OleDbException ex)
+				catch (DbException ex)
 				{
                     Logger.WriteException(ex);
 					return false;
@@ -317,7 +317,7 @@ namespace PTM.Framework.Helpers
 					ConfigurationHelper.SaveConfiguration(new Configuration(ConfigurationKey.DataBaseVersion, "0.9.3"));
 					return true;
 				}
-				catch (OleDbException ex)
+				catch (DbException ex)
 				{
                     Logger.WriteException(ex);
 					return false;
@@ -337,7 +337,7 @@ namespace PTM.Framework.Helpers
 					ConfigurationHelper.SaveConfiguration(new Configuration(ConfigurationKey.DataBaseVersion, "0.9.2"));
 					return true;
 				}
-				catch (OleDbException ex)
+				catch (DbException ex)
 				{
                     Logger.WriteException(ex);
 					return false;
@@ -356,7 +356,7 @@ namespace PTM.Framework.Helpers
 					ConfigurationHelper.SaveConfiguration(new Configuration(ConfigurationKey.DataBaseVersion, "0.9.1"));
 					return true;
 				}
-				catch (OleDbException ex)
+				catch (DbException ex)
 				{
                     Logger.WriteException(ex);
 					return false;
@@ -382,7 +382,7 @@ namespace PTM.Framework.Helpers
 					ConfigurationHelper.SaveConfiguration(new Configuration(ConfigurationKey.TasksLogDuration, 10));
 					return true;
 				}
-				catch (OleDbException ex)
+				catch (DbException ex)
 				{
                     Logger.WriteException(ex);
 					return false;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
-using System.Data.OleDb;
+using System.Data.Common;
+
 using PTM.Data;
 using PTM.Framework.Infos;
 
@@ -9,11 +10,9 @@ namespace PTM.Framework.Helpers
 	/// <summary>
 	/// Summary description for DataMaintenanceHelper.
 	/// </summary>
-	public sealed class DataMaintenanceHelper
+	public static class DataMaintenanceHelper
 	{
-		private DataMaintenanceHelper()
-		{
-		}
+		#region DataMaintenanceHelper Members
 
 		public static void CompactDB()
 		{
@@ -22,89 +21,87 @@ namespace PTM.Framework.Helpers
 
 		public static void DeleteIdleEntries()
 		{
-			Configuration config = ConfigurationHelper.GetConfiguration(ConfigurationKey.DataMaintenanceDays);
-			DateTime limitDate = DateTime.Today.AddDays(-(int) config.Value);
+			Configuration config = ConfigurationHelper.GetConfiguration( ConfigurationKey.DataMaintenanceDays );
+			DateTime limitDate = DateTime.Today.AddDays( -(int)config.Value );
 
 			//Delete Idle logs
-			DbHelper.ExecuteNonQuery("DELETE FROM TasksLog " +
-			                         " WHERE TasksLog.TaskId =  " + Tasks.IdleTask.Id +
-			                         " AND TasksLog.InsertTime < ?", new string[] {"InsertTime"},
-			                         new object[] {limitDate});
+			DbHelper.ExecuteNonQuery( "DELETE FROM TasksLog " +
+															 " WHERE TasksLog.TaskId =  " + Tasks.IdleTask.Id +
+															 " AND TasksLog.InsertTime < ?", new string[] { "InsertTime" },
+															 new object[] { limitDate } );
 		}
 
-        public static void DeleteZeroOrNullActiveTimeEntries()
+		public static void DeleteZeroOrNullActiveTimeEntries()
 		{
-            DbHelper.ExecuteNonQuery("Delete from ApplicationsLog where ActiveTime is NULL or ActiveTime = 0");
-            // See bug 1917606
-            DbHelper.ExecuteNonQuery("Delete from TasksLog where Duration is NULL or Duration = 0");
+			DbHelper.ExecuteNonQuery( "Delete from ApplicationsLog where ActiveTime is NULL or ActiveTime = 0" );
+			// See bug 1917606
+			DbHelper.ExecuteNonQuery( "Delete from TasksLog where Duration is NULL or Duration = 0" );
 		}
-		public static void GroupLogs(bool fullCheck)
+
+		public static void GroupLogs( bool fullCheck )
 		{
-			Configuration config = ConfigurationHelper.GetConfiguration(ConfigurationKey.DataMaintenanceDays);
-			DateTime date = DateTime.Today.AddDays(-(int) config.Value);
-			while (true)
+			Configuration config = ConfigurationHelper.GetConfiguration( ConfigurationKey.DataMaintenanceDays );
+			DateTime date = DateTime.Today.AddDays( -(int)config.Value );
+			while( true )
 			{
-				object value = DbHelper.ExecuteScalar("SELECT Max(InsertTime) FROM TasksLog WHERE InsertTime<?",
-				                                      new string[] {"InsertTime"}, new object[] {date});
+				object value = DbHelper.ExecuteScalar( "SELECT Max(InsertTime) FROM TasksLog WHERE InsertTime<?",
+																							new [] { "InsertTime" }, new object[] { date } );
 
-				if (value == DBNull.Value)
+				if( value == DBNull.Value )
 					break;
 
-				date = ((DateTime) value).Date;
+				date = DateTime.Parse((string)value).Date;
 
-				//ArrayList list = Logs.GetLogsByDay(date);
-				bool mergeNeeded = GroupLogsList(date);
+				bool mergeNeeded = _GroupLogsList( date );
 
-				if(fullCheck)
+				if( fullCheck )
 					continue;
 
-				if (!mergeNeeded)
+				if( !mergeNeeded )
 					break;
 			}
 		}
 
-		private static bool GroupLogsList(DateTime date)
+		#endregion DataMaintenanceHelper Members
+
+		#region Private Members
+
+		private static bool _GroupLogsList( DateTime date )
 		{
-			MergedLogs mergeList;
-			mergeList = MergedLogs.GetMergedLogsByDay(date);
+			var mergeList = MergedLogs.GetMergedLogsByDay( date );
 			bool mergeNeeded = false;
 
-			OleDbConnection con;
-			con = DbHelper.GetConnection();
+			var con = DbHelper.GetConnection();
 			con.Open();
-			OleDbTransaction trans = con.BeginTransaction();
+			var trans = con.BeginTransaction();
 			try
 			{
-				foreach (MergedLog mergedLog in mergeList)
+				foreach( MergedLog mergedLog in mergeList )
 				{
-					ArrayList applicationsLog;
-					applicationsLog = ApplicationsLog.GetApplicationsLog(mergedLog.MergeLog.Id);
-					applicationsLog = MergeApplicationsLists(applicationsLog, con, trans);
+					var applicationsLog = ApplicationsLog.GetApplicationsLog( mergedLog.MergeLog.Id );
+					applicationsLog = _MergeApplicationsLists( applicationsLog, con, trans );
 
-					if (mergedLog.DeletedLogs.Count == 0)
+					if( mergedLog.DeletedLogs.Count == 0 )
 						continue;
-					OleDbCommand command;
+					DbCommand command;
 
-					foreach (Log log in mergedLog.DeletedLogs)
+					foreach( Log log in mergedLog.DeletedLogs )
 					{
-						ArrayList deletedApplicationsLog;
-						deletedApplicationsLog = ApplicationsLog.GetApplicationsLog(log.Id);
+						var deletedApplicationsLog = ApplicationsLog.GetApplicationsLog( log.Id );
 
-						applicationsLog = MergeApplicationsLists(applicationsLog, deletedApplicationsLog, mergedLog.MergeLog.Id, con, trans);
+						applicationsLog = _MergeApplicationsLists( applicationsLog, deletedApplicationsLog, mergedLog.MergeLog.Id, con, trans );
 
-//						command =
-//							new OleDbCommand(
-//								"Delete from ApplicationsLog Where TaskLogId = " + log.Id, con, trans);
-//						command.ExecuteNonQuery();
-
-						command = new OleDbCommand("Delete from TasksLog Where Id = " + log.Id, con, trans);
+						command = con.CreateCommand();
+						command.CommandText = "Delete from TasksLog Where Id = " + log.Id;
+						command.Connection = con;
+						command.Transaction = trans;
 						command.ExecuteNonQuery();
 					}
 
-					command =
-						new OleDbCommand(
-							"Update TasksLog Set Duration = " + mergedLog.MergeLog.Duration + " Where Id = " + mergedLog.MergeLog.Id, con,
-							trans);
+					command = con.CreateCommand();
+					command.CommandText = "Update TasksLog Set Duration = " + mergedLog.MergeLog.Duration + " Where Id = " + mergedLog.MergeLog.Id;
+					command.Connection = con;
+					command.Transaction = trans;
 					command.ExecuteNonQuery();
 					mergeNeeded = true;
 				}
@@ -123,78 +120,83 @@ namespace PTM.Framework.Helpers
 			}
 		}
 
-		//Merge appSumaryList2 into appSumaryList1
-		private static ArrayList MergeApplicationsLists(ArrayList appSumaryList1, ArrayList appSumaryList2, int mergedLogId, OleDbConnection con, OleDbTransaction trans )
+		//Merge appSumaryList1 same apps
+		private static ArrayList _MergeApplicationsLists( ArrayList appSumaryList1, DbConnection con, DbTransaction trans )
 		{
-			OleDbCommand command;		
-			foreach (ApplicationLog row in appSumaryList2)
+			for( int i = 0; i < appSumaryList1.Count; i++ )
+			{
+				for( int j = i + 1; j < appSumaryList1.Count; j++ )
+				{
+					if( string.Compare( ((ApplicationLog)appSumaryList1[i]).Name, ((ApplicationLog)appSumaryList1[j]).Name, true ) == 0 )
+					{
+						((ApplicationLog)appSumaryList1[i]).ActiveTime += ((ApplicationLog)appSumaryList1[j]).ActiveTime;
+						DbCommand command = con.CreateCommand();
+						command.CommandText = "Update ApplicationsLog Set ActiveTime = " + ((ApplicationLog)appSumaryList1[i]).ActiveTime + " Where Id = " + ((ApplicationLog)appSumaryList1[i]).Id;
+						command.Connection = con;
+						command.Transaction = trans;
+						command.ExecuteNonQuery();
+
+						command = con.CreateCommand();
+						command.CommandText = "Delete from ApplicationsLog Where Id = " + ((ApplicationLog)appSumaryList1[j]).Id;
+						command.Connection = con;
+						command.Transaction = trans;
+						command.ExecuteNonQuery();
+
+						appSumaryList1.RemoveAt( j );
+						j--;
+
+					}
+				}
+			}
+			return appSumaryList1;
+		}
+
+		//Merge appSumaryList2 into appSumaryList1
+		private static ArrayList _MergeApplicationsLists( ArrayList appSumaryList1, ArrayList appSumaryList2, int mergedLogId, DbConnection con, DbTransaction trans )
+		{
+			foreach( ApplicationLog row in appSumaryList2 )
 			{
 				ApplicationLog sum = null;
-				for (int i = 0; i < appSumaryList1.Count; i++)
+				for( int i = 0; i < appSumaryList1.Count; i++ )
 				{
-					if (string.Compare(row.Name, ((ApplicationLog) appSumaryList1[i]).Name, true) ==
-						0)
+					if( string.Compare( row.Name, ((ApplicationLog)appSumaryList1[i]).Name, true ) ==
+						0 )
 					{
-						sum = (ApplicationLog) appSumaryList1[i];
+						sum = (ApplicationLog)appSumaryList1[i];
 						break;
 					}
 				}
 
-				if (sum == null)
+				DbCommand command;
+				if( sum == null )
 				{
-					appSumaryList1.Add(row);
-					command =
-						new OleDbCommand(
-						"Update ApplicationsLog Set TaskLogId = " + mergedLogId + " Where Id = " + row.Id, con, trans);
+					appSumaryList1.Add( row );
+					command = con.CreateCommand();
+					command.CommandText = "Update ApplicationsLog Set TaskLogId = " + mergedLogId + " Where Id = " + row.Id;
+					command.Connection = con;
+					command.Transaction = trans;
 					command.ExecuteNonQuery();
 				}
 				else
 				{
 					sum.ActiveTime += row.ActiveTime;
-					command =
-						new OleDbCommand(
-						"Update ApplicationsLog Set ActiveTime = " + sum.ActiveTime + " Where Id = " + sum.Id, con, trans);
+					command = con.CreateCommand();
+					command.CommandText = "Update ApplicationsLog Set ActiveTime = " + sum.ActiveTime + " Where Id = " + sum.Id;
+					command.Connection = con;
+					command.Transaction = trans;
 					command.ExecuteNonQuery();
 
-					command =
-							new OleDbCommand(
-					"Delete from ApplicationsLog Where Id = " + row.Id, con, trans);
+					command = con.CreateCommand();
+					command.CommandText = "Delete from ApplicationsLog Where Id = " + row.Id;
+					command.Connection = con;
+					command.Transaction = trans;
 					command.ExecuteNonQuery();
 				} //if-else
 			} //foreach
 			return appSumaryList1;
 		}
 
-		//Merge appSumaryList1 same apps
-		private static ArrayList MergeApplicationsLists(ArrayList appSumaryList1, OleDbConnection con, OleDbTransaction trans )
-		{
-			OleDbCommand command;
-			
-			for(int i = 0; i < appSumaryList1.Count ;i++)
-			{
-				for(int j = i+1; j < appSumaryList1.Count ;j++)
-				{
-					if (string.Compare(((ApplicationLog) appSumaryList1[i]).Name, ((ApplicationLog) appSumaryList1[j]).Name, true) ==
-						0)
-					{
-						((ApplicationLog) appSumaryList1[i]).ActiveTime += ((ApplicationLog) appSumaryList1[j]).ActiveTime;
-						command =
-							new OleDbCommand(
-							"Update ApplicationsLog Set ActiveTime = " + ((ApplicationLog) appSumaryList1[i]).ActiveTime + " Where Id = " + ((ApplicationLog) appSumaryList1[i]).Id, con, trans);
-						command.ExecuteNonQuery();
+		#endregion Private Members
 
-						command =
-							new OleDbCommand(
-							"Delete from ApplicationsLog Where Id = " + ((ApplicationLog) appSumaryList1[j]).Id, con, trans);
-						command.ExecuteNonQuery();
-
-						appSumaryList1.RemoveAt(j);
-						j--;
-						
-					}
-				}
-			}
-			return appSumaryList1;
-		}
 	}
 }

@@ -65,7 +65,7 @@ namespace PTM.Framework
 
 		public static void DeleteLog( int id )
 		{
-			int idleTaskId = Tasks.IdleTask.Id;
+			var idleTaskId = Tasks.IdleTask.Id;
 			UpdateLogTaskId( id, idleTaskId );
 		}
 
@@ -75,7 +75,7 @@ namespace PTM.Framework
 		public static void FillMissingTimeUntilNow()
 		{
 			//Check db is not empty
-			var logCount = (int)DbHelper.ExecuteScalar( "Select Count(1) From TasksLog" );
+			var logCount = (long)DbHelper.ExecuteScalar( "Select Count(1) From TasksLog" );
 			if( logCount == 0 )
 				return;
 
@@ -95,7 +95,7 @@ namespace PTM.Framework
 
 			Configuration configLogDuration = ConfigurationHelper.GetConfiguration( ConfigurationKey.TasksLogDuration );
 
-			int defaultTaskId = Tasks.IdleTask.Id;
+			var defaultTaskId = Tasks.IdleTask.Id;
 
 			while( lastLogFinish.AddSeconds( 60 ) < DateTime.Now ) //less than 1 minute is ignored
 			{
@@ -123,8 +123,8 @@ namespace PTM.Framework
 			var log = new Log
 			{
 				Id = id,
-				TaskId = (int)dictionary["TaskId"],
-				Duration = (int)dictionary["Duration"],
+				TaskId = Convert.ToInt32((long)dictionary["TaskId"]),
+				Duration = Convert.ToInt32((long)dictionary["Duration"]),
 				InsertTime = (DateTime)dictionary["InsertTime"]
 			};
 			return log;
@@ -145,9 +145,9 @@ namespace PTM.Framework
 			{
 				var log = new Log
 				{
-					Id = (int)dictionary["Id"],
-					TaskId = (int)dictionary["TaskId"],
-					Duration = (int)dictionary["Duration"],
+					Id = Convert.ToInt32((long)dictionary["Id"]),
+					TaskId = Convert.ToInt32((long)dictionary["TaskId"]),
+					Duration = Convert.ToInt32((long)dictionary["Duration"]),
 					InsertTime = (DateTime)dictionary["InsertTime"]
 				};
 
@@ -156,7 +156,7 @@ namespace PTM.Framework
 			return list;
 		}
 
-		public static ArrayList GetLogsByTask( int taskId )
+		public static ArrayList GetLogsByTask( long taskId )
 		{
 			ArrayList arrayList = DbHelper.ExecuteGetRows(
 				"Select Id, TaskId, Duration, InsertTime  from TasksLog where TaskId = ? order by InsertTime",
@@ -170,9 +170,9 @@ namespace PTM.Framework
 			{
 				var log = new Log
 				{
-					Id = (int)dictionary["Id"],
-					TaskId = (int)dictionary["TaskId"],
-					Duration = (int)dictionary["Duration"],
+					Id = Convert.ToInt32((long)dictionary["Id"]),
+					TaskId = Convert.ToInt32((long)dictionary["TaskId"]),
+					Duration = Convert.ToInt32((long)dictionary["Duration"]),
 					InsertTime = (DateTime)dictionary["InsertTime"]
 				};
 
@@ -244,10 +244,6 @@ namespace PTM.Framework
 
 			DbHelper.ExecuteNonQuery( "UPDATE TasksLog SET Duration = ? WHERE Id = " + currentLog.Id,
 									 new[] { "Duration" }, new object[] { currentLog.Duration } );
-			//if (LogChanged != null)
-			//{
-			//    LogChanged(new LogChangeEventArgs(currentLog, DataRowAction.Change));
-			//}
 		}
 
 		public static void UpdateLogTaskId( int logId, int taskId )
