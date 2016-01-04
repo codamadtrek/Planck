@@ -1,8 +1,0 @@
-
-_ReSharper.*/
-bin/
-obj/
-*.suo
-*.user
-Import Schema Logs/
-/src/*.DotSettings
